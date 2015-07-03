@@ -12,7 +12,7 @@ Template for Comsat Spring 4 MVC + JSP view + Annotation configuration, using Gr
 
 ###2. To Run this project locally
 ```shell
-$ git clone https://github.com/mkyong/spring4-mvc-gradle-annotation-hello-world
+$ git clone https://github.com/circlespainter/spring4-mvc-gradle-annotation-hello-world
 $ gradle [-Penv=tomcat7] cargoRunLocal
 ```
 Access ```http://localhost:8080/spring4-mvc-gradle-annotation-hello-world/hello/<yourname>```
