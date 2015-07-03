@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <!-- Load the webApp with class loader for instrumentation purposes-->
+    <Loader loaderClass="co.paralleluniverse.comsat.tomcat.QuasarWebAppClassLoader" />
+</Context>

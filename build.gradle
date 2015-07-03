@@ -1,58 +1,106 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-cargo-plugin:2.0.3'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'war'
-apply plugin: 'eclipse-wtp'
-//apply plugin: 'jetty' //too old, Jetty6, use gretty
-apply plugin: 'org.akhikhl.gretty'
+apply plugin: 'com.bmuschko.cargo'
 
-// JDK 7
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+ext.servletVer      = '3.0.1'
+ext.comsatVer       = '0.4.0'
+ext.quasarVer       = '0.7.2'
+
+ext.slf4jVer        = '1.7.12'
+
+ext.xmlAPIsVer      = '1.3.03'
+
+ext.containerPort   = 8080
+ext.tomcat7Ver      = '7.0.62'
+ext.tomcat8Ver      = '8.0.23'
+
+ext.cargoVer        = '1.4.12'
+
+ext.tomcatJvmArgs =
+        "-server -Xmixed -XX:+TieredCompilation -XX:+AggressiveOpts -Xmx1024m -Dco.paralleluniverse.fibers.disableAgentWarning"
+/*
+    -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+    -Dco.paralleluniverse.fibers.verifyInstrumentation=true
+*/
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+ext.classifier      = ':' // ':jdk8'
+sourceCompatibility = 1.7 // '1.8'
+targetCompatibility = 1.7 // '1.8'
 
 repositories {
-    mavenLocal()
+    // mavenLocal()
     mavenCentral()
 }
 
-dependencies {
- 
-	compile 'ch.qos.logback:logback-classic:1.1.3'
-	compile 'org.springframework:spring-webmvc:4.1.6.RELEASE'
-	compile 'javax.servlet:jstl:1.2'
-	
-	//include in compile only, exclude in the war
-	providedCompile 'javax.servlet:servlet-api:2.5'
-	
+configurations {
+    comsatTomcatLoader
+    quasar
 }
 
-//Gretty
-buildscript {
-  repositories {
-    jcenter()
-  }
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
 
-  dependencies {
-    classpath 'org.akhikhl.gretty:gretty:+'
-  }
-}
-
-gretty {
-  port = 8080
-  contextPath = 'spring4'
-  servletContainer = 'jetty9'
-}
-
-
-//For Eclipse IDE only
-eclipse {
-
-  wtp {
-    component {
-      
-      //define context path, default to project folder name
-      contextPath = 'spring4'
-      
+        force "xml-apis:xml-apis:$xmlAPIsVer"
     }
-    
-  }
 }
 
+dependencies {
+    compile "ch.qos.logback:logback-classic:1.1.3"
+    compile "co.paralleluniverse:quasar-core:${quasarVer}"
+    compile "co.paralleluniverse:comsat-spring-webmvc:${comsatVer}"
+    compile "javax.servlet:jstl:1.2"
+
+    //include in compile only, exclude in the war
+    providedCompile "javax.servlet:javax.servlet-api:$servletVer"
+
+    comsatTomcatLoader "co.paralleluniverse:comsat-tomcat-loader:${comsatVer}${classifier}@jar"
+
+    quasar "co.paralleluniverse:quasar-core:${quasarVer}${classifier}@jar"
+
+    cargo "org.codehaus.cargo:cargo-core-uberjar:$cargoVer", "org.codehaus.cargo:cargo-ant:$cargoVer"
+}
+
+if (project.hasProperty('env') && project.getProperty('env') == 'tomcat7') {
+    ext.tomcatVer = tomcat7Ver
+    ext.tomcatMajor = '7'
+} else {
+    ext.tomcatVer = tomcat8Ver
+    ext.tomcatMajor = '8'
+}
+
+cargo {
+    containerId = "tomcat${tomcatMajor}x"
+    port = containerPort
+
+    local {
+        jvmArgs = tomcatJvmArgs
+
+        installer {
+            installUrl = "http://www.us.apache.org/dist/tomcat/tomcat-${tomcatMajor}/v${tomcatVer}/bin/apache-tomcat-${tomcatVer}.zip"
+            downloadDir = file("$buildDir/download")
+            extractDir = file("$buildDir/extract")
+        }
+        file {
+            file = file("${configurations.comsatTomcatLoader.singleFile}")
+            toDir = file('/common/lib')
+        }
+    }
+}
+
+cargoRunLocal.dependsOn assemble
+cargoStartLocal.dependsOn assemble
+
+defaultTasks 'cargoRunLocal'

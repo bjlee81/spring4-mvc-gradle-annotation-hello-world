@@ -1,11 +1,11 @@
-Gradle - Spring 4 MVC Hello World
-===============================
-Template for Spring 4 MVC + JSP view + Annotation configuration, using Gradle build tool.
+Gradle - Comsat Spring 4 MVC Hello World
+========================================
+Template for Comsat Spring 4 MVC + JSP view + Annotation configuration, using Gradle.
 
 ###1. Technologies used
-* Required Servlet 3.0+ container, like Tomcat 7 or Jetty 8
-* Gradle 2.0
-* Spring Spring 4.1.6.RELEASE
+* Cargo with Tomcat 7 or 8
+* Gradle 2
+* Comsat with Spring Framework 4.1.6.RELEASE (Spring controller requests will be served by more efficient Quasar fibers rather than Java threads)
 * JSTL 1.2
 * Logback 1.1.3
 * Boostrap 3
@@ -13,15 +13,9 @@ Template for Spring 4 MVC + JSP view + Annotation configuration, using Gradle bu
 ###2. To Run this project locally
 ```shell
 $ git clone https://github.com/mkyong/spring4-mvc-gradle-annotation-hello-world
-$ gradle jettyRun
+$ gradle [-Penv=tomcat7] cargoRunLocal
 ```
-Access ```http://localhost:8080/spring4```
-
-###3. To import this project into Eclipse IDE
-1. ```$ gradle eclipse```
-2. Import into Eclipse via **existing projects into workspace** option.
-3. Done.
+Access ```http://localhost:8080/spring4-mvc-gradle-annotation-hello-world/hello/<yourname>```
 
 ###4. Project Demo
 Please refer to this article [Gradle - Spring 4 MVC Hello World + Annotation ](http://www.mkyong.com/spring-mvc/gradle-spring-4-mvc-hello-world-example-annotation/)
-

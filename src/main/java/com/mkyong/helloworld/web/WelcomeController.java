@@ -2,6 +2,8 @@ package com.mkyong.helloworld.web;
 
 import java.util.Map;
 
+import co.paralleluniverse.fibers.Fiber;
+import co.paralleluniverse.fibers.SuspendExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,8 @@ public class WelcomeController {
 	}
 
 	@RequestMapping(value = "/hello/{name:.+}", method = RequestMethod.GET)
-	public ModelAndView hello(@PathVariable("name") String name) {
+	public ModelAndView hello(@PathVariable("name") String name) throws SuspendExecution, InterruptedException {
+		Fiber.sleep(10);
 
 		logger.debug("hello() is executed - $name {}", name);
 
@@ -47,7 +50,5 @@ public class WelcomeController {
 		model.addObject("msg", helloWorldService.getDesc());
 		
 		return model;
-
 	}
-
 }
